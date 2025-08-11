@@ -1,0 +1,75 @@
+html, body { height: 100%; margin: 0; }
+#map { height: 100%; }
+
+.panel {
+position: absolute;
+top: 10px;
+left: 10px;
+z-index: 1000;
+background: rgba(255,255,255,0.95);
+padding: 12px;
+border-radius: 10px;
+box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+max-width: 420px;
+font-family: system-ui, sans-serif;
+font-size: 14px;
+}
+
+.panel h2 { margin-top: 0; font-size: 18px; }
+.row { margin: 8px 0; }
+.panel input[type=\"text\"], .panel select {
+width: 100%;
+padding: 6px 8px;
+border: 1px solid #ccc;
+border-radius: 8px;
+}
+.panel button {
+padding: 8px 10px;
+border: none;
+border-radius: 8px;
+margin-right: 6px;
+margin-top: 6px;
+cursor: pointer;
+}
+.primary { background: #2563eb; color: white; }
+.secondary { background: #e2e8f0; }
+.danger { background: #dc2626; color: white; }
+.muted { color: #6b7280; font-size: 12px; }
+.pill { background: #eef2ff; color: #1e3a8a; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+
+.list {
+max-height: 140px;
+overflow-y: auto;
+background: #fff;
+border: 1px solid #e5e7eb;
+border-radius: 8px;
+padding: 6px;
+}
+
+.list-item {
+padding: 4px 0;
+display: flex;
+justify-content: space-between;
+border-bottom: 1px dashed #ddd;
+}
+
+.legend {
+position: absolute;
+top: 10px;
+right: 10px;
+z-index: 1000;
+background: white;
+padding: 8px;
+border-radius: 10px;
+box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+font-size: 13px;
+}
+
+.legend .swatch {
+width: 14px;
+height: 14px;
+border-radius: 3px;
+display: inline-block;
+margin-right: 6px;
+border: 1px solid rgba(0,0,0,0.15);
+}
