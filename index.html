@@ -7,7 +7,7 @@
   <title>PLZ-Regionen Auswahl</title>
 
 
-    <!-- Leaflet -->
+  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -18,33 +18,43 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Leaflet-Lasso -->
-<script src="https://unpkg.com/leaflet-lasso@2.2.13/dist/leaflet-lasso.umd.min.js"></script>
+  <script src="https://unpkg.com/leaflet-lasso@2.2.13/dist/leaflet-lasso.umd.min.js"></script>
 
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="stylePanel.css" />
 </head>
 
 <body>
   <div id="map"></div>
-  
+<button id="togglePanel" class="panel-toggle">☰</button>
+<button id="goHome" class="goHome-toggle">⮨</button>
+<div class="map-dim" id="mapDim"></div>
+
+
+
   <div class="panel">
     <h2>PLZ-Regionen Auswahl</h2>
     <div class="row">
-      <strong>1) GeoJSON hochladen</strong>
+      <h3>GeoJSON hochladen</h3>
       <input type="file" id="geojsonInput" accept=".geojson,.json" />
-      <div class="muted">Datei mit PLZ-Polygonen von Deutschland (Feldname wird automatisch erkannt)</div>
+      <div class="muted">
+        Datei mit PLZ-Polygonen von Deutschland<br>
+        (Feldname wird automatisch erkannt)
+      </div>
+      <hr />
     </div>
 
     <div class="row">
-      <strong>2) PLZ auswählen</strong><br>
+      <h3>PLZ auswählen</h3>
       <div class="muted">Klicke auf die Karte oder verwende das Lasso-Tool</div>
       <span class="pill" id="selCount">0 ausgewählt</span><br>
       <button id="btnClearSel" class="secondary">Auswahl löschen</button>
       <button id="btnZoomSel" class="secondary">Zoom auf Auswahl</button>
       <button id="btnLasso" class="secondary">Lasso aktivieren</button>
+      <hr />
     </div>
 
     <div class="row">
-      <strong>3) Regionen verwalten</strong><br>
+      <h3>Regionen verwalten</h3>
       <input type="text" id="regionName" placeholder="Name der Region" />
       <button id="btnCreateRegion" class="primary">Region erstellen</button>
       <button id="btnAddSelectedToRegion" class="secondary">Zur Region hinzufügen</button><br>
@@ -52,24 +62,27 @@
       <div class="list" id="regionList"></div>
       <button id="btnRemovePlzFromRegion" class="secondary">Aus Region entfernen</button>
       <button id="btnDeleteRegion" class="danger">Region löschen</button>
+      <hr />
     </div>
 
     <div class="row">
-      <strong>4) Export</strong><br>
+      <h3>Export</h3>
       <button id="btnExportJson" class="primary">JSON speichern</button>
       <button id="btnExportXlsx" class="secondary">Excel speichern</button>
+      <hr />
     </div>
 
     <div class="row">
-      <strong>5) Speichern</strong><br>
+      <h3>Speichern</h3>
       <button id="btnSaveLocal" class="secondary">Im Browser speichern</button>
       <button id="btnLoadLocal" class="secondary">Aus Browser laden</button>
       <button id="btnResetAll" class="danger">Alles zurücksetzen</button>
+      <hr />
     </div>
   </div>
 
   <div class="legend" id="legend" style="display:none;">
-    <strong>Regionen</strong>
+    <h3>Regionen</h3>
     <div id="legendItems"></div>
   </div>
 

@@ -1,75 +1,392 @@
-html, body { height: 100%; margin: 0; }
-#map { height: 100%; }
+*, *::before, *::after {
+    box-sizing: border-box;
+}
 
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+#map {
+    height: 100%;
+}
+
+:root {
+    --bg: #ffffff;
+    --panel: rgba(0, 0, 0, 0.219);
+    --panel-border: rgba(255, 255, 255, 0.08);
+    --text: #e6edf5;
+    --muted: #ffffff;
+    --primary: #3b83f67e;
+    /* brand */
+    --primary-700: #5b71ef;
+    --secondary: #969696;
+    --danger: #ffc7b169;
+    --success: #10b981;
+    --shadow: 0 20px 50px rgba(0, 0, 0, .45);
+    --radius: 14px;
+}
+
+
+
+
+/* Make Leaflet tooltip a bit nicer */
+.leaflet-tooltip {
+    background: rgba(17, 24, 39, 0.9);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    padding: 6px 8px;
+    backdrop-filter: blur(6px);
+
+}
+
+.leaflet-container a {
+    color: var(--primary);
+}
+
+body {
+    background: radial-gradient(800px 400px at 80% -200px,
+            rgba(59, 130, 246, 0.18),
+            transparent),
+        radial-gradient(700px 500px at -200px 90%,
+            rgba(16, 185, 129, 0.12),
+            transparent),
+        var(--bg);
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+        'Helvetica Neue', Arial;
+    color: var(--text);
+}
+
+/* === Element 1: Panel container === */
+
+/* ---- Control Panel ---- */
 .panel {
-position: absolute;
-top: 10px;
-left: 10px;
-z-index: 1000;
-background: rgba(255,255,255,0.95);
-padding: 12px;
-border-radius: 10px;
-box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-max-width: 420px;
-font-family: system-ui, sans-serif;
-font-size: 14px;
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 1000;
+    max-width: 440px;
+    padding: 14px 14px;
+    border-radius: var(--radius);
+    background: var(--panel);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--panel-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
 }
 
-.panel h2 { margin-top: 0; font-size: 18px; }
-.row { margin: 8px 0; }
-.panel input[type=\"text\"], .panel select {
-width: 100%;
-padding: 6px 8px;
-border: 1px solid #ccc;
-border-radius: 8px;
+/* subtle glow ring */
+.panel::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(180deg,
+            rgba(59, 130, 246, 0.16),
+            rgba(255, 255, 255, 0)),
+        linear-gradient(0deg, rgba(16, 185, 129, 0.1), rgba(255, 255, 255, 0));
+    mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+    -webkit-mask: linear-gradient(#000, #000) content-box,
+        linear-gradient(#000, #000);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    padding: 1px;
+    border-radius: inherit;
 }
+
+
+.panel h2 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    letter-spacing: 0.2px;
+    line-height: 1.2;
+    background: linear-gradient(90deg, var(--text), rgba(255, 255, 255, 0.7));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.muted {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.row {
+    margin: 10px 0 12px;
+
+}
+
+
+
+
+
+
+
+/* ---- Buttons ---- */
 .panel button {
-padding: 8px 10px;
-border: none;
-border-radius: 8px;
-margin-right: 6px;
-margin-top: 6px;
-cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--btn-bd, var(--panel-border));
+  border-radius: var(--btn-radius, 10px);   
+  background: var(--btn-bg, rgba(255,255,255,0.05));
+  color: var(--btn-fg, inherit);
+  cursor: pointer;
+  margin: 6px 6px 0 0;
+  font-weight: 600;
+  transition: transform .06s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease, filter .2s ease;
+  user-select: none;
+  will-change: transform;
 }
-.primary { background: #2563eb; color: white; }
-.secondary { background: #e2e8f0; }
-.danger { background: #dc2626; color: white; }
-.muted { color: #6b7280; font-size: 12px; }
-.pill { background: #eef2ff; color: #1e3a8a; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
 
+.panel button:hover {
+  filter: brightness(1.05);
+  border-color: var(--btn-bd-hover, rgba(255,255,255,0.18));
+}
+
+.panel button:active {
+  transform: translateY(1px);
+}
+.panel button.primary {
+  --btn-bg: linear-gradient(180deg, var(--primary), var(--primary-700));
+  --btn-fg: #fff;
+  --btn-bd: transparent;
+  --btn-bd-hover: transparent;
+  --btn-radius: 10px; /* или 999px, если нужно круглое */
+}
+
+.panel button.secondary {
+  --btn-bg: var(--secondary);
+  --btn-fg: var(--text);
+  --btn-bd: rgba(0,0,0,0.08);
+  --btn-bd-hover: rgba(0,0,0,0.15);
+  --btn-radius: 10px;
+}
+
+.panel button.danger {
+  --btn-bg: var(--danger);
+  --btn-fg: #ffffff;
+  --btn-bd: transparent;
+  --btn-bd-hover: transparent;
+  --btn-radius: 10px;
+}
+/* ---- Custom file upload ---- */
+input[type='file'] {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    cursor: pointer;
+    color: var(--text);
+    font-weight: 500;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    transition: all 0.2s ease;
+}
+
+input[type='file']::file-selector-button {
+    background: linear-gradient(180deg, var(--primary), var(--primary-700));
+    border: none;
+    border-radius: 999px;
+    color: #fff;
+    padding: 8px 12px;
+    margin-right: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+input[type='file']:hover {
+    border-color: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.07);
+}
+
+input[type='file']::file-selector-button:hover {
+    filter: brightness(1.08);
+}
+
+input[type='file']::file-selector-button:active {
+    transform: scale(0.97);
+}
+
+/* Pills */
+.pill {
+    display: inline-block;
+    background: rgba(0, 98, 255, 0.12);
+    color: var(--primary-700);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+/* ---- Custom text input ---- */
+.panel input[type='text'],
+.panel select {
+    width: 100%;
+    margin-top: 6px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--panel-border);
+    background: rgba(255, 255, 255, 0.06);
+    color: inherit;
+    outline: none;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.panel input[type='text']::placeholder {
+    color: var(--muted);
+}
+
+.panel input[type='text']:focus,
+.panel select:focus {
+    border-color: rgba(59, 130, 246, 0.55);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.18);
+    background: rgba(255, 255, 255, 0.09);
+}
+
+/* ---- Region list ---- */
 .list {
-max-height: 140px;
-overflow-y: auto;
-background: #fff;
-border: 1px solid #e5e7eb;
-border-radius: 8px;
-padding: 6px;
+    margin-top: 6px;
+    min-height: 40px;
+    max-height: 160px;
+    overflow: auto;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+}
+
+.list::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+}
+
+.list::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.45);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.list::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 .list-item {
-padding: 4px 0;
-display: flex;
-justify-content: space-between;
-border-bottom: 1px dashed #ddd;
+    padding: 8px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed rgba(148, 163, 184, 0.25);
 }
 
+.list-item:last-child {
+    border-bottom: 0;
+}
+
+/* color chip */
+.legend .swatch,
+.list-item .swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-right: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+/* ---- Legend ---- */
 .legend {
-position: absolute;
-top: 10px;
-right: 10px;
-z-index: 1000;
-background: white;
-padding: 8px;
-border-radius: 10px;
-box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-font-size: 13px;
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 1000;
+    background: var(--panel);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--panel-border);
+    font-size: 13px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
-.legend .swatch {
-width: 14px;
-height: 14px;
-border-radius: 3px;
-display: inline-block;
-margin-right: 6px;
-border: 1px solid rgba(0,0,0,0.15);
+.legend strong {
+    display: block;
+    margin-bottom: 6px;
+    letter-spacing: 0.2px;
+}
+
+/* ---- Small refinements for Leaflet controls (zoom etc.) ---- */
+/* ---- Move Leaflet zoom control to top-right ---- */
+.leaflet-top.leaflet-right {
+  top: 12px !important;    /* отступ сверху */
+  right: 12px !important;  /* отступ справа */
+}
+
+/* ---- Optional: стиль, чтобы выглядело гармонично ---- */
+.leaflet-control-zoom {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  
+}
+
+.leaflet-control-zoom a {
+  border-radius: 0 !important;
+  color: #111 !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  transition: background 0.2s ease;
+}
+
+.leaflet-control-zoom a:hover {
+  background: rgba(255, 255, 255, 1) !important;
+}
+
+
+.leaflet-bar a {
+    background: #fff !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.leaflet-bar a:hover {
+    filter: brightness(0.98);
+}
+
+/* ---- Responsive tweaks ---- */
+@media (max-width: 900px) {
+    .panel {
+        max-width: 86vw;
+    }
+}
+
+@media (max-width: 640px) {
+    .panel {
+        left: 50%;
+        transform: translateX(-100%);
+        right: 14px;
+        max-width: calc(100vw - 28px);
+    }
+
+    .row {
+        margin: 8px 0 10px;
+    }
+
+    .panel button {
+        width: auto;
+    }
 }

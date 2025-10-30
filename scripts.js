@@ -1,8 +1,78 @@
-const map = L.map('map').setView([51.163, 10.447], 6);
-L.tileLayer('https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png', {
-  maxZoom: 18,
-  attribution: '&copy; OpenStreetMap-Mitwirkende'
+// =============================================
+// 1) Define multiple basemap layers (no API keys)
+// =============================================
+const baseLayers = {
+  "🗺️ OSM Standard": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }),
+
+  "🌤️ Carto Positron (Light)": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>'
+  }),
+
+  "🌑 Carto Dark Matter": L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>'
+  }),
+
+  "🧭 OpenTopoMap": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    maxZoom: 17,
+    attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap (CC-BY-SA)'
+  }),
+
+  "🛰️ Esri Satellite (World Imagery)": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19,
+    attribution: 'Tiles &copy; Esri'
+  }),
+
+  "🗺️ Esri Streets": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19,
+    attribution: 'Tiles &copy; Esri'
+  }),
+
+  "🗺️ Esri Topographic": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19,
+    attribution: 'Tiles &copy; Esri'
+  }),
+
+  "🧾 Esri Gray (Light)": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 16,
+    attribution: 'Tiles &copy; Esri'
+  }),
+
+  "🌚 Esri Gray (Dark)": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 16,
+    attribution: 'Tiles &copy; Esri'
+  })
+};
+
+// =============================================
+// 2) Initialize the map
+// =============================================
+const map = L.map('map', {
+  center: [51.163, 10.447],      // Germany center
+  zoom: 6,                       // initial zoom level
+  layers: [baseLayers["🗺️ OSM Standard"]] // default basemap
+});
+
+// =============================================
+// 3) Move zoom control to top-right corner
+// =============================================
+map.zoomControl.remove();
+L.control.zoom({
+  position: 'bottomright'  // options: 'topleft', 'topright', 'bottomleft', 'bottomright'
 }).addTo(map);
+
+// =============================================
+// 4) Add a layer switcher (basemap selector)
+// =============================================
+L.control.layers(baseLayers, null, {
+  position: 'bottomright', // place it at the bottom right
+  collapsed: true          // set to false for an always-open panel
+}).addTo(map);
+
 let plzLayer = null;
 let featureIndex = []; // { plz, feature, layer }
 let plzPropKey = null;
@@ -334,3 +404,53 @@ document.getElementById('btnLasso').onclick = () => {
     document.getElementById('btnLasso').textContent = 'Lasso deaktivieren';
   }
 };
+// Cache DOM elements
+const body = document.body;
+const toggle = document.getElementById('togglePanel');
+const home = document.getElementById('goHome');
+const dim = document.getElementById('mapDim');
+
+// --- Toggle sidebar visibility ---
+toggle?.addEventListener('click', () => {
+  body.classList.toggle('panel-open');
+});
+// --- Go Home ---
+home?.addEventListener('click', () => {
+  window.location.href = `${window.location.origin}/#projects`;
+});
+
+// --- Close sidebar when clicking on dim background ---
+dim?.addEventListener('click', () => {
+  body.classList.remove('panel-open');
+});
+
+// --- Close sidebar with the ESC key ---
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    body.classList.remove('panel-open');
+  }
+});
+
+// ===============================
+// Default state based on viewport width
+// - Desktop (>=900px): sidebar visible by default
+// - Mobile (<900px): sidebar hidden by default
+// ===============================
+
+const mq = window.matchMedia('(min-width: 900px)');
+
+function applyPanelDefault() {
+  if (mq.matches) {
+    // Desktop: keep panel open
+    body.classList.add('panel-open');
+  } else {
+    // Mobile: start closed
+    body.classList.remove('panel-open');
+  }
+}
+
+// Run once on load
+applyPanelDefault();
+
+// Re-apply automatically when window is resized across breakpoint
+mq.addEventListener('change', applyPanelDefault);

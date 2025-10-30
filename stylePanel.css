@@ -1,0 +1,591 @@
+/* ===============================
+   PLZ Map UI — Sidebar OVERLAY (All viewports)
+   - Sidebar always slides over the map (no map push)
+   - Add a dim overlay behind the panel for focus:
+       <div class="map-dim" id="mapDim"></div>
+   - Toggle JS (example):
+       toggleBtn.onclick = () => {
+         document.body.classList.toggle('panel-open');
+         document.querySelector('.panel')?.classList.toggle('open');
+       };
+       document.getElementById('mapDim')?.onclick = () => {
+         document.body.classList.remove('panel-open');
+         document.querySelector('.panel')?.classList.remove('open');
+       };
+   =============================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  /* predictable sizing for all elements */
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+:root {
+  /* ---- Theme tokens (kept from your code) ---- */
+  --bg: #ffffff;
+  --panel: rgba(0, 0, 0, 0.219);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --text: #e6edf5;
+  --muted: #ffffff;
+  --primary: #3b83f67e;
+  /* brand */
+  --primary-700: #5b71ef;
+  --primary-700_toggle: rgb(91, 113, 239, 0.08);
+  --toggle_black: rgb(0, 0, 0);
+  --secondary: #969696;
+  --danger: #ffc7b169;
+  --success: #10b981;
+  --shadow: 0 20px 50px rgba(0, 0, 0, .45);
+  --radius: 14px;
+
+  /* ---- Sidebar width (visual size; does NOT push map) ---- */
+  --sidebar-w: 365px;
+
+  counter-reset: headings;
+}
+
+/* Map fills the viewport; it is NEVER shifted */
+#map {
+  height: 100%;
+  margin-left: 0;
+  /* ensure no push */
+  transition: none;
+  /* no animation needed now */
+}
+
+/* Body background and typography (kept) */
+body {
+  background:
+    radial-gradient(800px 400px at 80% -200px, rgba(59, 130, 246, 0.18), transparent),
+    radial-gradient(700px 500px at -200px 90%, rgba(16, 185, 129, 0.12), transparent),
+    var(--bg);
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial;
+  color: var(--text);
+}
+
+/* =========================================
+   Sidebar Panel (slides over the map)
+   ========================================= */
+.panel {
+  position: fixed;
+  /* stick to viewport */
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  /* above map and leaflet controls */
+  height: 100%;
+  width: var(--sidebar-w);
+  max-width: 90vw;
+  /* keep some room on very small screens */
+  padding: 14px;
+  border-radius: 0;
+  /* full-height drawer has no outer rounding */
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  border-right: 1px solid var(--panel-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.45;
+
+  /* off-canvas by default; revealed with .open or .panel-open on body */
+  transform: translateX(-100%);
+  transition: transform .3s ease;
+  /* overflow-y: auto; */
+  /* scroll inner content when needed */
+}
+
+/* When panel is open (either class on the panel or on body) */
+.panel.open,
+body.panel-open .panel {
+  transform: translateX(0);
+}
+
+/* Decorative glow line at the right edge (adapted from your ring) */
+.panel::after {
+  content: '';
+  position: absolute;
+  inset: 0 -1px 0 0;
+  /* highlight on the right border */
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(59, 130, 246, 0.16), rgba(255, 255, 255, 0)),
+    linear-gradient(0deg, rgba(16, 185, 129, 0.1), rgba(255, 255, 255, 0));
+  mask: linear-gradient(#000, #000);
+  -webkit-mask: linear-gradient(#000, #000);
+}
+
+/* Section headings */
+.panel h2 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  letter-spacing: 0.2px;
+  line-height: 1.2;
+  background: linear-gradient(90deg, var(--text), rgba(255, 255, 255, 0.7));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.panel h3 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  letter-spacing: 0.2px;
+  line-height: 1.2;
+  background: linear-gradient(90deg, var(--text), rgba(255, 255, 255, 0.7));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  counter-increment: headings;
+}
+
+.panel h3::before {
+  content: counter(headings) ". ";
+
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.row {
+  margin: 10px 0 12px;
+}
+
+/* =========================================
+   Toggle Button (opens/closes the panel)
+   Add near the map:
+     <button id="togglePanel" class="panel-toggle" aria-label="Toggle sidebar">☰</button>
+   ========================================= */
+.panel-toggle {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 1100;
+  /* above panel */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--primary-700_toggle);
+  /* your brand color */
+  border-radius: 50%;
+  /* perfect circle */
+  background: transparent;
+  /* transparent background */
+  color: var(--toggle_black);
+  /* brand-colored icon/text */
+  cursor: pointer;
+  font-size: 20px;
+  /* suitable for ☰ icon */
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+/* Hover and active feedback */
+.panel-toggle:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.panel-toggle:active {
+  transform: translateY(1px);
+  background: rgba(0, 0, 0, 0.1);
+}
+.goHome-toggle {
+  position: fixed;
+  top: 12px;
+  left: 60px;
+  z-index: 1100;
+  /* above panel */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--primary-700_toggle);
+  /* your brand color */
+  border-radius: 50%;
+  /* perfect circle */
+  background: transparent;
+  /* transparent background */
+  color: var(--toggle_black);
+  /* brand-colored icon/text */
+  cursor: pointer;
+  font-size: 20px;
+  /* suitable for ☰ icon */
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+/* Hover and active feedback */
+.goHome-toggle:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.goHome-toggle:active {
+  transform: translateY(1px);
+  background: rgba(0, 0, 0, 0.1);
+}
+/* In overlay mode we DO NOT move the toggle with the panel.
+   (If you prefer it to follow the panel edge, uncomment below)
+*/
+
+body.panel-open .panel-toggle {
+  left: calc(var(--sidebar-w) + 12px);
+}
+body.panel-open .goHome-toggle {
+  left: calc(var(--sidebar-w) + 60px);
+}
+
+/* =========================================
+   Map Dim Overlay (focus the sidebar)
+   Add once in HTML: <div class="map-dim" id="mapDim"></div>
+   ========================================= */
+.map-dim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+  z-index: 900;
+  /* below panel (1000), above map */
+}
+
+/* Show the dim overlay whenever the panel is open */
+body.panel-open .map-dim {
+  /* opacity: 1; */
+  pointer-events: none;
+  /* click to close */
+}
+
+/* =========================================
+   Panel Internal Controls (kept from your code)
+   ========================================= */
+
+/* Buttons inside the panel */
+.panel button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--btn-bd, var(--panel-border));
+  border-radius: var(--btn-radius, 10px);
+  background: var(--btn-bg, rgba(255, 255, 255, 0.05));
+  color: var(--btn-fg, inherit);
+  cursor: pointer;
+  margin: 6px 6px 0 0;
+  font-weight: 600;
+  transition: transform .06s ease, background .2s ease, border-color .2s ease,
+    box-shadow .2s ease, filter .2s ease;
+  user-select: none;
+  will-change: transform;
+}
+
+.panel button:hover {
+  filter: brightness(1.05);
+  border-color: var(--btn-bd-hover, rgba(255, 255, 255, 0.18));
+}
+
+.panel button:active {
+  transform: translateY(1px);
+}
+
+.panel button.primary {
+  --btn-bg: linear-gradient(180deg, var(--primary), var(--primary-700));
+  --btn-fg: #fff;
+  --btn-bd: transparent;
+  --btn-bd-hover: transparent;
+  --btn-radius: 10px;
+  /* 999px -> pill if you want fully rounded */
+}
+
+.panel button.secondary {
+  --btn-bg: var(--secondary);
+  --btn-fg: var(--text);
+  --btn-bd: rgba(0, 0, 0, 0.08);
+  --btn-bd-hover: rgba(0, 0, 0, 0.15);
+  --btn-radius: 10px;
+}
+
+.panel button.danger {
+  --btn-bg: var(--danger);
+  --btn-fg: #ffffff;
+  --btn-bd: transparent;
+  --btn-bd-hover: transparent;
+  --btn-radius: 10px;
+}
+
+/* Custom file input */
+input[type='file'] {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 500;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  transition: all 0.2s ease;
+}
+
+input[type='file']::file-selector-button {
+  background: linear-gradient(180deg, var(--primary), var(--primary-700));
+  border: none;
+  border-radius: 999px;
+  color: #fff;
+  padding: 8px 12px;
+  margin-right: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+input[type='file']:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+input[type='file']::file-selector-button:hover {
+  filter: brightness(1.08);
+}
+
+input[type='file']::file-selector-button:active {
+  transform: scale(0.97);
+}
+
+/* Pills */
+.pill {
+  display: inline-block;
+  background: rgba(0, 98, 255, 0.12);
+  color: var(--text);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+/* Text inputs and selects */
+.panel input[type='text'],
+.panel select {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  outline: none;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.panel input[type='text']::placeholder {
+  color: var(--muted);
+}
+
+.panel input[type='text']:focus,
+.panel select:focus {
+  border-color: rgba(59, 130, 246, 0.55);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.18);
+  background: rgba(255, 255, 255, 0.09);
+}
+
+/* Regions list */
+.list {
+  margin-top: 6px;
+  min-height: 40px;
+  max-height: 160px;
+  overflow: auto;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+}
+
+.list::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+.list::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.list-item {
+  padding: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed rgba(148, 163, 184, 0.25);
+}
+
+.list-item:last-child {
+  border-bottom: 0;
+}
+
+/* Color chips used in legend and list */
+.legend .swatch,
+.list-item .swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-right: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+/* =========================================
+   Legend (kept)
+   ========================================= */
+.legend {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 1000;
+  background: var(--panel);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--panel-border);
+  font-size: 13px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.legend strong {
+  display: block;
+  margin-bottom: 6px;
+  letter-spacing: 0.2px;
+}
+
+/* =========================================
+   Leaflet small refinements
+   ========================================= */
+.leaflet-tooltip {
+  background: rgba(17, 24, 39, 0.9);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  padding: 6px 8px;
+  backdrop-filter: blur(6px);
+}
+
+.leaflet-container a {
+  color: var(--primary);
+}
+
+/* Move zoom to top-right */
+.leaflet-top.leaflet-right {
+  top: 12px !important;
+  right: 12px !important;
+}
+
+.leaflet-control-zoom {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.leaflet-control-zoom a {
+  border-radius: 0 !important;
+  color: #111 !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  transition: background 0.2s ease;
+}
+
+.leaflet-control-zoom a:hover {
+  background: rgba(255, 255, 255, 1) !important;
+}
+
+.leaflet-bar a {
+  background: #fff !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.leaflet-bar a:hover {
+  filter: brightness(0.98);
+}
+
+/* =========================================
+   Responsive Rules
+   ========================================= */
+
+/* Tablets: slightly narrower sidebar (visual) */
+@media (max-width: 900px) {
+  :root {
+    --sidebar-w: 320px;
+  }
+  .map-dim { display: none; }
+}
+
+/* Very small screens: ensure the panel fits nicely */
+/* @media (max-width: 640px) {
+  :root { --sidebar-w: min(86vw, 420px); }
+} */
+@media (max-height: 933px) {
+  .panel {
+    overflow-y: auto;
+    overflow-x: hidden;         /* 🚫 disable horizontal scrolling */
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 80px;
+  }
+
+  /* Prevent child elements from accidentally exceeding width */
+  .panel * {
+    max-width: 100%;           /* keeps elements within panel width */
+    box-sizing: border-box;
+  }
+}
+/* ===== Custom Scrollbar (modern glass style) ===== */
+.panel::-webkit-scrollbar {
+  width: 8px;                /* scrollbar width */
+}
+
+.panel::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05); /* track background */
+  border-radius: 10px;
+}
+
+.panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25); /* thumb color */
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+}
+
+.panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35); /* brighter on hover */
+}
+
+/* Firefox (uses simpler syntax) */
+.panel {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.05);
+}
